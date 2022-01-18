@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -44,25 +45,38 @@ class MainFragment : Fragment() {
         //Declare ViewModel for MainFragment
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        var mLastClickTime : Long = 0
         btn_weather.setOnClickListener(View.OnClickListener {
-            viewModel.retrieveAPIData(edit_city.text.trim().toString())
-            viewModel.responseData.observe(viewLifecycleOwner, Observer {
-                if(it.responseSuccess != null){
-                    recycle_result.visibility = View.VISIBLE
-                    tv_error_message.visibility = View.GONE
-                    recycle_result.layoutManager = LinearLayoutManager(activity)
-                    val adapter  = ItemAdapter(it.responseSuccess)
-                    recycle_result.adapter = adapter
-                } else if(it.responseFail != null) {
-                    recycle_result.visibility = View.GONE
-                    tv_error_message.visibility = View.VISIBLE
-                    tv_error_message.text = "Response: " + it.responseFail?.message + "\n" + "Code: " + it.responseFail?.cod
-                } else {
-                    recycle_result.visibility = View.GONE
-                    tv_error_message.visibility = View.VISIBLE
-                    tv_error_message.text = "Response: " + it.throwable?.toString()
-                }
-            })
+            if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) {
+                Toast.makeText(activity, "Action to fast", Toast.LENGTH_SHORT).show()
+            }
+            mLastClickTime = SystemClock.elapsedRealtime()
+
+            if(edit_city.text.trim().length < 3)
+                Toast.makeText(activity, "Please enter at least 3 characters", Toast.LENGTH_SHORT).show()
+            else
+                viewValue()
+        })
+    }
+
+    private fun viewValue(){
+        viewModel.retrieveAPIData(edit_city.text.trim().toString())
+        viewModel.responseData.observe(viewLifecycleOwner, Observer {
+            if(it.responseSuccess != null){
+                recycle_result.visibility = View.VISIBLE
+                tv_error_message.visibility = View.GONE
+                recycle_result.layoutManager = LinearLayoutManager(activity)
+                val adapter  = ItemAdapter(it.responseSuccess)
+                recycle_result.adapter = adapter
+            } else if(it.responseFail != null) {
+                recycle_result.visibility = View.GONE
+                tv_error_message.visibility = View.VISIBLE
+                tv_error_message.text = "Response: " + it.responseFail?.message + "\n" + "Code: " + it.responseFail?.cod
+            } else {
+                recycle_result.visibility = View.GONE
+                tv_error_message.visibility = View.VISIBLE
+                tv_error_message.text = "Response: " + it.throwable?.toString()
+            }
         })
     }
 }
