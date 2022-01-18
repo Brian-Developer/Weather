@@ -33,8 +33,7 @@ class ItemAdapter (private val dataSet: WeatherResult?) :
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.item_weather, viewGroup, false)
-
-        return ViewHolder(view)
+        return ViewHolder(view!!)
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {

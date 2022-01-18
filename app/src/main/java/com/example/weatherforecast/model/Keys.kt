@@ -1,6 +1,6 @@
 package com.example.weatherforecast.model
 
-object Key {
+object Keys {
 
     init {
         System.loadLibrary("native-lib")
